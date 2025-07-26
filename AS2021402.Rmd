@@ -1,0 +1,375 @@
+---
+title: "COVID-19 Pandemic in the Taiwan"
+author: "K.N.Sathsara - AS2021402"
+output: html_document
+date: "2024-07-29"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r,echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results=FALSE}
+library(devtools)
+devtools::install_github("thiyangt/sta3262")
+library(sta3262)
+get_individual_project_country("AS2021402")
+library(coronavirus)
+data("coronavirus")
+taiwan <- subset(coronavirus, country=="Taiwan*")
+```
+
+
+
+## **Introduction about Taiwan**
+>Taiwan, officially known as the Republic of China (ROC), is an island nation in East Asia with a vibrant economy and rich cultural heritage. Located off the southeastern coast of China, Taiwan boasts a diverse landscape, from bustling cities like Taipei to lush, mountainous regions. Its history is marked by indigenous cultures, colonial influences, and significant political changes, particularly after 1949 when the ROC government retreated to Taiwan following the Chinese Civil War. Despite its complex international status and limited diplomatic recognition, Taiwan functions as a sovereign state with its own government, military, and democratic political system. Known globally for its advanced technology sector, especially in semiconductor production, Taiwan also maintains a high standard of living and a progressive society, leading in various social issues such as LGBTQ+ rights. The island's unique blend of traditional Chinese, Japanese, and indigenous cultures is reflected in its festivals, cuisine, and arts, making Taiwan a dynamic and influential player on the world stage.
+
+<br>
+
+
+##### **Capital City**
+- Taipei City (GMT +8)
+
+##### **Currency**
+- New Taiwan dollar
+
+##### **Population**
+- 23.57 million (2020)
+
+##### **Dialing Code**
+- +886
+
+##### **President**
+- Lai Ching Te
+
+##### **Religions** (2020 estimate)
+- Buddhism 35.1% 
+- Taosim 33.0%
+- No religion 18.7%
+- Christianity 3.9%
+
+##### **Neighboring Countries **
+- China
+- Japan
+- Philippines
+<br>
+
+## **COVID-19 Pandemic in Taiwan**
+>The COVID-19 pandemic in Taiwan was a part of the worldwide pandemic of coronavirus disease 2019 (COVID-19) caused by severe acute respiratory syndrome coronavirus 2 (SARS-CoV-2).
+
+>The virus was confirmed to have spread to Taiwan on 21 January 2020, with the first case being a 50-year-old woman who had been teaching in Wuhan, China.[6] The Taiwanese government integrated data from the national health care system, immigration, and customs authorities to aid in the identification and response to the virus. 
+
+>Starting 19 March 2020, foreign nationals were barred from entering Taiwan with some exceptions such as those carrying out the remainder of business contracts and those holding valid Alien Resident Certificates, diplomatic credentials, or other official documentation and special permits. Restrictions have since been relaxed for foreign university students and those seeking medical treatment in Taiwan, subject to prior government approval.All who are admitted into the country must complete a fourteen-day quarantine upon arrival, except for business travelers from countries determined to be at low or moderate risk, who are subject to five- or seven-day quarantines and must submit to a COVID-19 test.
+
+<br>
+
+## **Exploratory Data Analysis**
+
+### **Structure of Data**
+##### Daily summary of the Coronavirus (COVID-19) cases by state/province.
+
+#### **Format**
+A data frame with following variables.
+
+**date :**
+Date in YYYY-MM-DD format.
+
+**province :**
+Name of province/state, for countries where data is provided split across multiple provinces/states.
+
+**country :**
+Name of country/region.
+
+**lat :**
+Latitude of center of geographic region, defined as either country or, if available, province.
+
+**long :**
+Longitude of center of geographic region, defined as either country or, if available, province.
+
+**type :**
+An indicator for the type of cases (confirmed, death, recovered).
+
+**cases :**
+Number of cases on given date.
+
+**uid :**
+Country code
+
+**iso2 :**
+Officially assigned country code identifiers with two-letter
+
+**iso3 :**
+Officially assigned country code identifiers with three-letter
+
+**code3 :**
+UN country code
+
+**combined_key :**
+Country and province (if applicable)
+
+**population :**
+Country or province population
+
+**continent_name :**
+Continent name
+
+**continent_code :**
+Continent code
+
+##### **Details :**
+The dataset contains the daily summary of Coronavirus cases (confirmed, death, and recovered), by state/province.
+
+<br>
+
+
+### **Summary about the Filtered Taiwan Corona Dataset**
+
+
+```{r,echo=FALSE, message=FALSE, warning=FALSE}
+summary(taiwan)
+
+```
+
+>This is the summary about filtered data set Taiwan from the coronavirus data set. 
+So can see in "cases" column there are some minus values here.Cases cannot be minus. That is error. So, we do some statistical things to avoid this error. 
+The data set has data from 2020-01-22 to 2023-03-09. According to the above summary we can see the mean number of cases are 2917. The maximum number of cases are 128954.
+
+<br>
+
+### **Confirmed Corona Cases in Taiwan**
+<br>
+<center>
+```{r,echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results=FALSE}
+library(magrittr)
+library(dplyr)
+library(ggplot2)
+## confirmed cases
+
+confirmed_cases <- taiwan %>% filter(type=="confirmed")
+summary(confirmed_cases)
+which(confirmed_cases$cases<0)
+
+confirmed_cases$cases[195]=mean(c(confirmed_cases$cases[194],confirmed_cases$cases[196]))
+confirmed_cases$cases[201]=mean(c(confirmed_cases$cases[200],confirmed_cases$cases[202]))
+which(confirmed_cases$cases<0)
+
+ggplot(confirmed_cases, aes(x=date, y=cases)) +
+ geom_line(colour="red") + geom_path(size=1, colour="maroon2")  + labs(x= "Dates ",
+                                                        y= "Confirmed cases",
+                                                        title = "Confirmed cases in Taiwan based on Dates")
+
+which(is.na(confirmed_cases$cases))
+
+
+```
+</center>
+>In Confirmed cases there had two minus values.So I did some statistical operations and correct them.
+
+>According to the above plot,In Initial period(2020-early 2021) we can see that there is a very low number of cases indicating that Taiwan had very few cases during that period.In the period of mid 2021 to early 2022 there is noticeable increase in cases,although still relatively low compared to the later period. In mid 2022 a significant spike in the number of confirmed cases is observed,reaching the peak around mid 2022. After that peak period there is a sharp decline in the number of cases confirmed. 
+
+<br>
+
+### **Death Corona Cases in Taiwan**
+<br>
+
+<center>
+
+```{r,echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results=FALSE}
+## Death cases  
+
+death_cases <- taiwan %>% filter(type=="death")
+summary(death_cases)
+
+##In here no minus values
+
+ggplot(death_cases, aes(x=date, y=cases)) + geom_path(size=1,  colour="cyan4") + labs(x= "Dates ",
+                                                        y= "Death cases",
+                                                        title = "Death cases in Taiwan")
+
+which(is.na(death_cases$cases)) 
+
+```
+</center>
+>According to the above graph, In initial period (2020 to early 2021) the graph shows a very low number of death cases in the initial period of the pandemic. In mid 2021 to early 2022 there is a noticeable increase in the number of death cases starting from mid 2021. After that there is a significant spike in the number of death cases is observed around mid 2022. After that peak period there is a sharp decline in the number of death cases.
+
+<br>
+
+### **Recovery Corona Cases in Taiwan**
+<br>
+
+<center>
+
+```{r,echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results=FALSE}
+##recovery corona cases
+library(plotly)
+recovery_cases <- taiwan %>% filter(type=="recovery")
+summary(recovery_cases)
+which(recovery_cases$cases<0)
+
+recovery_cases$cases[523]=mean(c(recovery_cases$cases[522],recovery_cases$cases[524]))
+
+
+ggplot(recovery_cases, aes(x=date, y=cases)) + geom_path(size=1,  colour="brown") + labs(x= "Dates ",
+                                                        y= "Recovery cases",
+                                                        title = "Recovery cases in Taiwan")
+```
+
+</center>
+>In Recovery cases there had a one minus values.So I did some statistical operations and correct them.
+
+>According to the above graph we can see no recovery cases. Because in that period no huge amount of covid-19 cases had confirmed. After that in mid of 2021 there is a significant spike in the number of recovery cases. After that there is a sharp decline in the number of recovery cases because in that period rate of deaths due to covid-19 in Taiwan was very large.
+
+<br>
+
+### **Active Cases In Taiwan**
+<br>
+
+<center>
+
+```{r,echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results=FALSE}
+##active cases
+library(tidyverse) 
+library(magrittr)
+library(plotly)
+active_cases <-  taiwan %>%
+   group_by(type, date) %>%
+   summarise(total_cases= sum(cases)) %>%
+   pivot_wider(names_from = type, values_from = total_cases) %>%
+   arrange(date) %>%
+   mutate(active = confirmed - death - recovery) %>%
+   mutate(total_active_cases = cumsum(active),
+          total_recovered_cases = cumsum(recovery),
+          total_death_cases = cumsum(death))
+
+which(active_cases$cases<0)
+ggplot(active_cases, aes(x =date,y =total_active_cases)) + geom_line(color="red")+labs(title = "Acive cases in Taiwan")
+
+
+```
+</center>
+>According to the graph we can conclude that most of active cases had between mid 2022 to early 2023.
+
+<br>
+
+### **Compare Confirmed Cases with China,Japan and Philippines**
+<br>
+
+<center>
+```{r,echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results=FALSE}
+##comparison
+
+neighbour_country <- coronavirus %>% filter (country==c ("China", "Japan", "Philippines","Taiwan*"))
+
+## neibhour country confirmed 
+confirmed_neighbour_country <- neighbour_country %>% filter (type=="confirmed")
+which(confirmed_neighbour_country$cases<0)
+
+confirmed_neighbour_country$cases[1124]=mean(c(confirmed_neighbour_country$cases[1123],confirmed_neighbour_country$cases[1125]))
+confirmed_neighbour_country$cases[2731]=mean(c(confirmed_neighbour_country$cases[2730],confirmed_neighbour_country$cases[2732]))
+confirmed_neighbour_country$cases[3578]=mean(c(confirmed_neighbour_country$cases[3577],confirmed_neighbour_country$cases[3579]))
+confirmed_neighbour_country$cases[3587]=mean(c(confirmed_neighbour_country$cases[3586],confirmed_neighbour_country$cases[3588]))
+confirmed_neighbour_country$cases[4839]=mean(c(confirmed_neighbour_country$cases[4838],confirmed_neighbour_country$cases[4840]))
+confirmed_neighbour_country$cases[4893]=mean(c(confirmed_neighbour_country$cases[4892],confirmed_neighbour_country$cases[4894]))
+confirmed_neighbour_country$cases[8595]=mean(c(confirmed_neighbour_country$cases[8594],confirmed_neighbour_country$cases[8596]))
+confirmed_neighbour_country$cases[8600]=mean(c(confirmed_neighbour_country$cases[8599],confirmed_neighbour_country$cases[8601]))
+confirmed_neighbour_country$cases[8622]=mean(c(confirmed_neighbour_country$cases[8621],confirmed_neighbour_country$cases[8623]))
+confirmed_neighbour_country$cases[8654]=mean(c(confirmed_neighbour_country$cases[8653],confirmed_neighbour_country$cases[8655]))
+confirmed_neighbour_country$cases[8668]=mean(c(confirmed_neighbour_country$cases[8667],confirmed_neighbour_country$cases[8669]))
+confirmed_neighbour_country$cases[8747]=mean(c(confirmed_neighbour_country$cases[8746],confirmed_neighbour_country$cases[8748]))
+confirmed_neighbour_country$cases[10337]=mean(c(confirmed_neighbour_country$cases[10336],confirmed_neighbour_country$cases[10338]))
+
+which(confirmed_neighbour_country$cases<0)
+
+ggplot(confirmed_neighbour_country, aes(x=date, y= cases, colour=country)) + geom_path(size=1) +
+  labs(title = "Comparison - Confirmed Corona cases with China,Japan and Philippines")
+
+```
+</center>
+>According to the Figure, we can say that Japan has the highest confirmed corona cases. As well as Philippines has the lowest confirmed corona cases.
+
+<br>
+
+### **Compare Death Cases with China,Japan and Philippines**
+<br>
+
+<center>
+```{r,echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results=FALSE}
+
+neighbour_country <- coronavirus %>% filter (country==c ("China", "Japan", "Philippines","Taiwan*"))
+
+## neibhour country death
+death_neighbour_country <- neighbour_country %>% filter (type=="death")
+which(death_neighbour_country$cases<0)
+
+death_neighbour_country$cases[8831]=mean(c(death_neighbour_country$cases[8830],death_neighbour_country$cases[8832]))
+death_neighbour_country$cases[10017]=mean(c(death_neighbour_country$cases[10016],death_neighbour_country$cases[10018]))
+which(death_neighbour_country$cases<0)
+
+ggplot(death_neighbour_country, aes(x=date, y= cases, colour=country)) + geom_path(size=1) +
+  labs(title = "Comparison - Death Corona cases with China,Japan and Philippines")
+
+```
+</center>
+>According to the Figure, we can say that Japan has the highest daily death corona cases. As well as Taiwan has the lowest daily death corona cases.
+
+<br>
+
+### **Compare Recovery Cases with China,Japan and Philippines**
+<br>
+
+<center>
+```{r,echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results=FALSE}
+
+neighbour_country <- coronavirus %>% filter (country==c ("China", "Japan", "Philippines","Taiwan*"))
+
+## neibhour country recovery
+recovery_neighbour_country <- neighbour_country %>% filter (type=="recovery")
+which(recovery_neighbour_country$cases<0)
+
+recovery_neighbour_country$cases[1720]=mean(c(recovery_neighbour_country$cases[1719],recovery_neighbour_country$cases[1721]))
+recovery_neighbour_country$cases[2004]=mean(c(recovery_neighbour_country$cases[2003],recovery_neighbour_country$cases[2005]))
+recovery_neighbour_country$cases[2292]=mean(c(recovery_neighbour_country$cases[2291],recovery_neighbour_country$cases[2293]))
+recovery_neighbour_country$cases[2320]=mean(c(recovery_neighbour_country$cases[2319],recovery_neighbour_country$cases[2321]))
+recovery_neighbour_country$cases[3264]=mean(c(recovery_neighbour_country$cases[3263],recovery_neighbour_country$cases[3265]))
+recovery_neighbour_country$cases[5554]=mean(c(recovery_neighbour_country$cases[5553],recovery_neighbour_country$cases[5555]))
+recovery_neighbour_country$cases[7167]=mean(c(recovery_neighbour_country$cases[7166],recovery_neighbour_country$cases[7168]))
+recovery_neighbour_country$cases[8673]=mean(c(recovery_neighbour_country$cases[8672],recovery_neighbour_country$cases[8674]))
+recovery_neighbour_country$cases[8675]=mean(c(recovery_neighbour_country$cases[8674],recovery_neighbour_country$cases[8676]))
+recovery_neighbour_country$cases[8677]=mean(c(recovery_neighbour_country$cases[8676],recovery_neighbour_country$cases[8681]))
+recovery_neighbour_country$cases[8678]=mean(c(recovery_neighbour_country$cases[8677],recovery_neighbour_country$cases[8682]))
+recovery_neighbour_country$cases[8679]=mean(c(recovery_neighbour_country$cases[8678],recovery_neighbour_country$cases[8683]))
+recovery_neighbour_country$cases[8680]=mean(c(recovery_neighbour_country$cases[8679],recovery_neighbour_country$cases[8684]))
+recovery_neighbour_country$cases[8687]=mean(c(recovery_neighbour_country$cases[8686],recovery_neighbour_country$cases[8689]))
+recovery_neighbour_country$cases[8688]=mean(c(recovery_neighbour_country$cases[8677],recovery_neighbour_country$cases[8690]))
+recovery_neighbour_country$cases[8693]=mean(c(recovery_neighbour_country$cases[8692],recovery_neighbour_country$cases[8694]))
+recovery_neighbour_country$cases[8695]=mean(c(recovery_neighbour_country$cases[8694],recovery_neighbour_country$cases[8696]))
+recovery_neighbour_country$cases[8698]=mean(c(recovery_neighbour_country$cases[8697],recovery_neighbour_country$cases[8699]))
+recovery_neighbour_country$cases[8701]=mean(c(recovery_neighbour_country$cases[8700],recovery_neighbour_country$cases[8702]))
+recovery_neighbour_country$cases[8708]=mean(c(recovery_neighbour_country$cases[8707],recovery_neighbour_country$cases[8709]))
+recovery_neighbour_country$cases[8710]=mean(c(recovery_neighbour_country$cases[8709],recovery_neighbour_country$cases[8711]))
+recovery_neighbour_country$cases[10097]=mean(c(recovery_neighbour_country$cases[10096],recovery_neighbour_country$cases[10098]))
+
+which(recovery_neighbour_country$cases<0)
+
+
+ggplot(recovery_neighbour_country, aes(x=date, y= cases, colour=country)) + geom_path(size=1) +
+  labs(title = "Comparison - Recovery Corona cases with China,Japan and Philippines")
+
+```
+</center>
+
+>According to the Figure, we can say that Philippines has the highest recovery corona cases. As well as Taiwan has the lowest recovery corona cases.
+
+<br>
+
+### **Conclusions and Discussion**
+
+>In my data set, I found some minus values. Province variable is already NA. So, I had some limitations in the data set. At first, there were no cases but shortly, the number of confirmed cases increased speedily and it is much larger than death and confirmed cases. Especially, Taiwan has a small number of death cases than confirmed cases. In the recovery cases in Taiwan data set, after the mid of the 2021 all the data goes to zero. It also happened when I compare the recovery cases with the neighbour countries.Taiwan has low rate of confirmed and death cases when we compared with China,Japan and Philippines. Minus values are also in the data sets of China,Japan and Philippines. 
+
+
+<br>
+
+### **References**
+- [Introduction about Taiwan](https://en.wikipedia.org/wiki/Taiwan#:~:text=Taiwan%2C%20officially%20the%20Republic%20of,the%20Philippines%20to%20the%20south.)
+- [COVID-19 pandemic in Taiwan](https://en.wikipedia.org/wiki/COVID-19_pandemic_in_Taiwan)
+
